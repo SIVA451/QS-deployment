@@ -10,7 +10,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # AWS Configuration
-AwsAccountId = os.environ.get('AWS_ACCOUNT_ID', '476621446285')
+AwsAccountId = os.environ.get('AWS_ACCOUNT_ID', '1234567890987')
 AwsRegion = os.environ.get('AWS_REGION', 'us-east-1')
 UniqueId = 'MigratedDEV'
 
