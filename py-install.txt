@@ -1,0 +1,14 @@
+sudo yum groupinstall -y "Development Tools"
+sudo yum install -y gcc openssl-devel bzip2-devel libffi-devel wget make
+cd /usr/src
+sudo wget https://www.python.org/ftp/python/3.10.13/Python-3.10.13.tgz
+sudo tar xzf Python-3.10.13.tgz
+cd Python-3.10.13
+sudo ./configure --enable-optimizations
+sudo make altinstall
+sudo alternatives --install /usr/bin/python3 python3 /usr/local/bin/python3.10 2
+sudo alternatives --config python3
+sudo /usr/local/bin/python3.10 -m ensurepip
+sudo /usr/local/bin/python3.10 -m pip install --upgrade pip setuptools whee
+python3 --version
+pip3 --version
