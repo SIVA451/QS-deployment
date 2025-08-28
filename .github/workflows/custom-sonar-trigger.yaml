@@ -1,0 +1,96 @@
+name: Sonar Scan (Auto)  # 🧪 Auto SonarQube scan workflow
+
+on:
+  push:                       # 🟢 Triggers on push to default branch
+    branches:
+      - main
+  pull_request:               # 🟢 Triggers on PR creation or update
+    branches:
+      - main
+  workflow_dispatch: {}       # 🟢 Allows manual trigger from GitHub UI
+
+jobs:
+  sonar:
+    # Centralized multi-language wrapper workflow
+    # You don’t need to define build/test/scan logic here — handled in the wrapper
+    uses: AZU-RDIT/io-sonar-centralized-workflow-wrapper/.github/workflows/sonar-wrapper.yml@stable
+
+    with:
+      # ────────────────────────────────
+      # 🚦 Classification
+      # ────────────────────────────────
+
+      repo_type: auto
+      # ✅ Required: YES
+      # dev → Default for code repos; enables build/test/scan
+      # infra → Would disable coverage and treat repo as infra-only
+      # auto → Detects based on language detection (not needed here)
+
+      #language: ""
+      # ✅ Required for this file: YES (explicit override)
+      # Forces the wrapper to treat this repo as Python-only
+      # Ensures central logic doesn’t accidentally trigger multi-language mode
+      # ⚠️ Must be consistent with presence of build files like `requirements.txt`, `setup.py`, `pyproject.toml`
+
+      # ────────────────────────────────
+      # 🛠 Build / Coverage Overrides
+      # ────────────────────────────────
+
+      #build_command: ""
+      # ✅ Optional: YES (default: "")
+      # When provided, overrides default Python build logic
+      # Useful if using tox, Poetry, or custom paths
+      # 🔁 Example:
+      #   "pip install -r requirements.txt && pytest --cov=my_module --cov-report=xml:cov/coverage.xml"
+      # ⚠️ Must ensure a valid Cobertura-style XML (`coverage.xml`) is created
+      # 💡 If omitted, wrapper runs: `coverage run -m pytest` followed by `coverage xml -o coverage.xml`
+
+      #coverage_report_path: ""
+      # ✅ Optional: YES (default: "")
+      # Deprecated – wrapper now auto-detects `coverage.xml`
+      # Use only if your report is outside standard locations like `./coverage.xml` or `cov/coverage.xml`
+      # ⚠️ This is ignored in most updated wrapper logic unless enforced explicitly
+
+      # ────────────────────────────────
+      # 🎯 Sonar Shortcut Properties
+      # ────────────────────────────────
+
+      #sonar_exclusions: "tests/**"
+      # ✅ Optional: YES
+      # Globs of files/folders to exclude from analysis
+      # Useful to skip test code, generated files, etc.
+      # ⚠️ Exclusion does not affect coverage, only static code analysis
+      # 🔁 Common values: "**/tests/**", "**/__init__.py", "**/*.spec.ts"
+
+      #sonar_inclusions: ""
+      # ✅ Optional: YES
+      # Globs of files/folders to include explicitly in scan
+      # Helpful in monorepos or non-standard folder structures
+      # 🔁 Example: "src/**"
+
+      #extra_sonar_args: ""
+      # ✅ Optional: YES
+      # Additional raw SonarQube arguments
+      # 🔁 Example: "-Dsonar.verbose=true"
+      # ⚠️ Use carefully. These will override or augment default wrapper-generated arguments.
+
+      # ────────────────────────────────
+      # 🏷 Tuning Options
+      # ────────────────────────────────
+
+      #search_depth: 6
+      # ✅ Optional: YES (default: 8)
+      # Controls how deep the wrapper searches for `requirements.txt`, `setup.py`, etc.
+      # Reduce for performance on flat repos; increase for nested structures
+
+      #enable_coverage: true
+      # ✅ Required: YES (default: true)
+      # Enables build/test and coverage reporting
+      # false → skips test and coverage; only static analysis is run
+      # ⚠️ Must be `true` for meaningful coverage reporting to SonarQube
+
+    secrets: inherit
+    # ✅ Required: YES
+    # Inherits repo-level secrets including:
+    # - SONAR_TOKEN (must have scan/create permission in SonarQube)
+    # - Any custom secrets like PyPI credentials, S3 keys, etc. if used in build
